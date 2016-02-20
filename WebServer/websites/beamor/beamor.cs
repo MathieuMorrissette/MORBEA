@@ -1,4 +1,4 @@
-﻿using HttpServer.websites.beamor.controllers;
+﻿using WebServer.websites.beamor.controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,6 @@ using WebServer.websites;
 
 namespace WebServer.websites.beamor
 {
-    /**/
     public class Beamor : BaseWebsite
     {
         const string DEFAULT_ROUTE = "game";
@@ -20,11 +19,12 @@ namespace WebServer.websites.beamor
         private IController controller;
         private static Dictionary<string, Func<IController>> routes = new Dictionary<string, Func<IController>>
         {
-            { "game", () => new Game() }
+            { "game", () => new Game() },
+            { "api", () => new API() },
+            { "resources", () => new FileProvider() },
+            { "javascript", () => new FileProvider() }
         };
 
-
-        /**/
         public Beamor(Client client, HttpListenerContext context):base(client, context)
         {
 
@@ -56,8 +56,6 @@ namespace WebServer.websites.beamor
             }
         }
 
-
-        /**/
         public override void HandleRequest()
         {
             if (this.controller == null)

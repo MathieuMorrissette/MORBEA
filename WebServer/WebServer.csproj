@@ -38,6 +38,10 @@
       <HintPath>..\packages\MySql.Data.6.9.8\lib\net45\MySql.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -63,14 +67,30 @@
     <Compile Include="Server.cs" />
     <Compile Include="helpers\WebHelper.cs" />
     <Compile Include="websites\beamor\Beamor.cs" />
+    <Compile Include="websites\beamor\controllers\API.cs" />
+    <Compile Include="websites\beamor\controllers\FileProvider.cs" />
     <Compile Include="websites\beamor\controllers\Game.cs" />
+    <Compile Include="websites\beamor\models\Character.cs" />
+    <Compile Include="websites\beamor\models\map\Chunk.cs" />
+    <Compile Include="websites\beamor\models\map\Map.cs" />
+    <Compile Include="websites\beamor\models\map\Teleport.cs" />
+    <Compile Include="websites\beamor\models\map\Tile.cs" />
+    <Compile Include="websites\beamor\models\map\TileLayer.cs" />
+    <Compile Include="websites\beamor\models\Player.cs" />
+    <Compile Include="websites\beamor\models\PositionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="websites\beamor\public\" />
+    <Folder Include="websites\beamor\interfaces\" />
+    <Folder Include="websites\beamor\public\resources\characters\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="websites\beamor\public\html\game.html" />
+    <Content Include="websites\beamor\public\javascript\game.js" />
+    <Content Include="websites\beamor\public\resources\tiles\green_grass.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

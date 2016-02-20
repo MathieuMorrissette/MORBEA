@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HttpServer.websites.beamor.models
+namespace WebServer.websites.beamor.models
 {
     public class Character
     {
@@ -15,12 +15,16 @@ namespace HttpServer.websites.beamor.models
         public int Strengh { get; set; }
         public int Defence { get; set;  }
 
-        public int PosX { get; set; }
-        public int PosY { get; set;  }
+        public PositionInfo PositionInfo = new PositionInfo();
+
+        public Character(string name)
+        {
+            this.Name = name;
+        }
 
         public override string ToString()
         {
-            return base.ToString();
+            return this.Name;
         }
     }
 }
