@@ -50,52 +50,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="websites\BaseWebsite.cs" />
-    <Compile Include="websites\mathieu_morrissette\controllers\API.cs" />
-    <Compile Include="websites\mathieu_morrissette\controllers\Register.cs" />
-    <Compile Include="websites\mathieu_morrissette\controllers\UserController.cs" />
     <Compile Include="interfaces\IDatabase.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="databases\Database.MySql.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="websites\mathieu_morrissette\controllers\Home.cs" />
-    <Compile Include="websites\mathieu_morrissette\controllers\Login.cs" />
     <Compile Include="interfaces\IController.cs" />
-    <Compile Include="websites\mathieu_morrissette\controllers\FileProvider.cs" />
     <Compile Include="managers\DatabaseManager.cs" />
     <Compile Include="interfaces\ITemplate.cs" />
     <Compile Include="managers\PasswordManager.cs" />
-    <Compile Include="websites\mathieu_morrissette\managers\UserManager.cs" />
-    <Compile Include="websites\mathieu_morrissette\model\Error.cs" />
-    <Compile Include="websites\mathieu_morrissette\model\User.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
-    <Compile Include="websites\mathieu_morrissette\templates\Error_Template.cs" />
-    <Compile Include="websites\mathieu_morrissette\templates\Footer_Template.cs" />
-    <Compile Include="websites\mathieu_morrissette\templates\Header_Template.cs" />
-    <Compile Include="websites\mathieu_morrissette\templates\Home_Template.cs" />
-    <Compile Include="websites\mathieu_morrissette\templates\Login_Template.cs" />
-    <Compile Include="websites\mathieu_morrissette\templates\Register_Template.cs" />
     <Compile Include="helpers\WebHelper.cs" />
-    <Compile Include="websites\mathieu_morrissette\WebSite.cs" />
-    <Compile Include="websites\test\FileProvider.cs" />
-    <Compile Include="websites\test\Home.cs" />
-    <Compile Include="websites\test\WebSite.cs" />
+    <Compile Include="websites\beamor\Beamor.cs" />
+    <Compile Include="websites\beamor\controllers\Game.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="websites\mathieu_morrissette\public\css\style.css" />
-    <Content Include="websites\mathieu_morrissette\public\html\error_alert.html" />
-    <Content Include="websites\mathieu_morrissette\public\html\footer.html" />
-    <Content Include="websites\mathieu_morrissette\public\html\header.html" />
-    <Content Include="websites\mathieu_morrissette\public\html\home.html" />
-    <Content Include="websites\mathieu_morrissette\public\html\login.html" />
-    <Content Include="websites\mathieu_morrissette\public\html\register.html" />
+    <Folder Include="websites\beamor\public\" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

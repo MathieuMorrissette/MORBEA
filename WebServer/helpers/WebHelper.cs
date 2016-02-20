@@ -60,5 +60,11 @@ namespace WebServer
 
             return dataDictionary;
         }
+
+        public static void Error(this HttpListenerContext context)
+        {
+            context.Response.StatusCode = 404;
+            context.Response.OutputStream.Close();
+        }
     }
 }

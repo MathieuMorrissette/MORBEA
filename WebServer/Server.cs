@@ -1,5 +1,5 @@
 ﻿using WebServer.websites;
-using WebServer.websites.mathieu_morrissette;
+using WebServer.websites.beamor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +20,7 @@ namespace WebServer
 
         private static Dictionary<string, Func<Client, HttpListenerContext, BaseWebsite>> websites = new Dictionary<string, Func<Client, HttpListenerContext, BaseWebsite>>
         {
-            { "localhost", (client, context) => new WebServer.websites.mathieu_morrissette.WebSite(client, context)},
-            { "test.localhost", (client, context) => new WebServer.websites.test.WebSite(client, context)}
+            { "localhost", (client, context) => new WebServer.websites.beamor.Beamor(client, context)}
         };
 
         // Don't forget to delete them after a while.
@@ -33,7 +32,6 @@ namespace WebServer
 
             this.httpListener.Prefixes.Add("http://localhost:8080/");
             this.httpListener.Prefixes.Add("http://127.0.0.1:8080/");
-            this.httpListener.Prefixes.Add("http://test.localhost:8080/");
         }
 
         public void Start()
