@@ -8,8 +8,6 @@ namespace WebServer.websites.beamor.models.map
 {
     public class Tile
     {
-        public Stack<TileLayer> Layers = new Stack<TileLayer>();
-
         public bool Walkable { get; set; } = true;
     }
 }

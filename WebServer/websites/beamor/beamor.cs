@@ -27,7 +27,6 @@ namespace WebServer.websites.beamor
 
         public Beamor(Client client, HttpListenerContext context):base(client, context)
         {
-
             string[] parsedArgs = WebHelper.GetUrlArguments(this.Context.Request.Url.Segments);
 
             string controller = string.Empty;

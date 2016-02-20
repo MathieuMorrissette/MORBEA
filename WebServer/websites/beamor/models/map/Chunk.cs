@@ -9,20 +9,16 @@ namespace WebServer.websites.beamor.models
 {
     public class Chunk
     {
-        public const byte CHUNK_SIZE = 16; // Number of tiles
-        public const byte TILE_SIZE = 32; // Pixel
+        public List<int[]> Layers;
 
-        public Tile[,] Tiles = new Tile[CHUNK_SIZE, CHUNK_SIZE];
-
-        public void FillChunk(Tile tile)
+        public Chunk()
         {
-            for (int i = 0; i < CHUNK_SIZE; i++)
-            {
-                for (int j = 0; j < CHUNK_SIZE; j++)
-                {
-                    this.Tiles[i, j] = tile;
-                }
-            }
+            this.Layers = new List<int[]>();
         }
+
+        public void AddLayer(int[] layer)
+        {
+            this.Layers.Add(layer);
+        }            
     }
 }
