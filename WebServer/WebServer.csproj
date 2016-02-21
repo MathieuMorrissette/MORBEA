@@ -75,9 +75,13 @@
     <Compile Include="websites\beamor\models\map\Map.cs" />
     <Compile Include="websites\beamor\models\map\Teleport.cs" />
     <Compile Include="websites\beamor\models\map\Tile.cs" />
+<<<<<<< HEAD
     <Compile Include="websites\beamor\models\map\TileLayer.cs" />
     <Compile Include="websites\beamor\models\Monster.cs" />
     <Compile Include="websites\beamor\models\Npc.cs" />
+=======
+    <Compile Include="websites\beamor\models\map\Tileset.cs" />
+>>>>>>> d773ab959707e68fe2280f333b4f086d52e271d6
     <Compile Include="websites\beamor\models\Player.cs" />
     <Compile Include="websites\beamor\models\PositionInfo.cs" />
   </ItemGroup>

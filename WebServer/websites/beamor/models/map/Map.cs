@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,78 @@ namespace WebServer.websites.beamor.models.map
 {
     public class Map
     {
+        public const byte MAP_CHUNK_SIZE = 16;
+
         public string MapName { get; set; }
-        public Chunk[,] Chunks = new Chunk[100, 100];
+        public Chunk[] Chunks;
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public Tileset[] Tilesets { get; set; }
+
+        public Map(string data_json)
+        {
+            JObject mapobject = JObject.Parse(data_json);
+
+            this.Width = mapobject["width"].Value<int>();
+            this.Height = mapobject["height"].Value<int>();
+
+            int chunk_width_count = (this.Width / MAP_CHUNK_SIZE);
+            int chunk_height_count = (this.Height / MAP_CHUNK_SIZE);
+            int chunk_count = chunk_width_count * chunk_height_count;
+
+
+            this.Chunks = new Chunk[chunk_count];
+
+            JToken layers = mapobject["layers"];
+
+            foreach (JToken token in layers)
+            {
+                int[] map_array = token["data"].Values<int>().ToArray();
+
+                // Loop for each chunk
+                for (int chunk_index = 0; chunk_index < chunk_count; chunk_index++)
+                {
+                    if (this.Chunks[chunk_index] == null)
+                    {
+                        this.Chunks[chunk_index] = new Chunk();
+                    }
+
+                    int[] buffer = new int[MAP_CHUNK_SIZE * MAP_CHUNK_SIZE];
+
+                    //We need 16 segments to make a chunk
+                    for (int segment_index = 0; segment_index < MAP_CHUNK_SIZE; segment_index++)
+                    {
+                        // First we need to find the find the segment index by taking into account the chunk_index
+                        int index = ((segment_index * ((chunk_width_count) * MAP_CHUNK_SIZE)) + chunk_index * MAP_CHUNK_SIZE);
+
+                        Array.Copy(map_array, index, buffer, segment_index * MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
+                    }
+
+                    this.Chunks[chunk_index].AddLayer(buffer);
+                }
+            }
+
+            JToken tilesets = mapobject["tilesets"];
+
+            this.Tilesets = new Tileset[tilesets.Count()];
+
+            for (int i = 0; i < this.Tilesets.Length; i++)
+            {
+                JToken json_tileset = tilesets[i];
+                int tilesetHeight = json_tileset["imageheight"].Value<int>();
+                int tilesetWidth = json_tileset["imagewidth"].Value<int>();
+                string tilesetName = json_tileset["name"].Value<string>();
+
+                this.Tilesets[0] = new Tileset(tilesetName, tilesetWidth, tilesetHeight);
+            }
+
+            Console.WriteLine("Map Created");
+        }
+
+        public void LoadMap(string data)
+        {
+
+
+        }
     }
 }
