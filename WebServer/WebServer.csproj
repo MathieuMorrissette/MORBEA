@@ -71,6 +71,7 @@
     <Compile Include="websites\beamor\controllers\FileProvider.cs" />
     <Compile Include="websites\beamor\controllers\Game.cs" />
     <Compile Include="websites\beamor\models\Character.cs" />
+    <Compile Include="websites\beamor\models\Enum.cs" />
     <Compile Include="websites\beamor\models\map\Chunk.cs" />
     <Compile Include="websites\beamor\models\map\Map.cs" />
     <Compile Include="websites\beamor\models\map\Teleport.cs" />

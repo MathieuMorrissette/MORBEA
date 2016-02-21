@@ -40,6 +40,11 @@ namespace WebServer.websites.beamor.controllers
                 context.Send(JsonConvert.SerializeObject(main_map.Chunks[89]));
             }
 
+            if (args[0] == "GetPlayer")
+            {
+                context.Send(JsonConvert.SerializeObject(new Player("Kevin") { Type = PlayerType.Archer }));
+            }
+
             return true;
         }
     }

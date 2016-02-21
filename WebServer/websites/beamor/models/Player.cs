@@ -8,6 +8,8 @@ namespace WebServer.websites.beamor.models
 {
     public class Player : Character
     {
+        public PlayerType Type { get; set; } = PlayerType.Warrior;
+
         public Player(string name) : base(name)
         {
         }
