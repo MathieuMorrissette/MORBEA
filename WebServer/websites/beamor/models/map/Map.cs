@@ -59,7 +59,7 @@ namespace WebServer.websites.beamor.models.map
                             this.Chunks[chunk_index].Layers.Add(new int[MAP_CHUNK_SIZE * MAP_CHUNK_SIZE]);
                         }
 
-                        Array.Copy(map_array, segment_index, this.Chunks[chunk_index].Layers[layer_index], segment_x * MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
+                        Array.Copy(map_array, segment_index, this.Chunks[chunk_index].Layers[layer_index], (row % MAP_CHUNK_SIZE) * MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
                     }
                 }
                 
