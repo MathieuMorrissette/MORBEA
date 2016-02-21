@@ -42,7 +42,7 @@
         for (var i = 0; i < chunk.Layers.length; i++) {
             for (var j = 0; j < chunk.Layers[0].length; j++) {
                 var position = GetPosition(j);
-                drawTile(chunk.Layers[0][j], position.x, position.y);
+                drawTile(chunk.Layers[i][j], position.x, position.y);
             }
         }
     }

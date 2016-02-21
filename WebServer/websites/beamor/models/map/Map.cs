@@ -24,7 +24,10 @@ namespace WebServer.websites.beamor.models.map
             this.Width = mapobject["width"].Value<int>();
             this.Height = mapobject["height"].Value<int>();
 
-            int chunk_count = (this.Width / MAP_CHUNK_SIZE) * (this.Height / MAP_CHUNK_SIZE);
+            int chunk_width_count = (this.Width / MAP_CHUNK_SIZE);
+            int chunk_height_count = (this.Height / MAP_CHUNK_SIZE);
+            int chunk_count = chunk_width_count * chunk_height_count;
+
 
             this.Chunks = new Chunk[chunk_count];
 
@@ -32,17 +35,28 @@ namespace WebServer.websites.beamor.models.map
 
             foreach (JToken token in layers)
             {
-                int[] array = token["data"].Values<int>().ToArray();
+                int[] map_array = token["data"].Values<int>().ToArray();
 
-                for (int i = 0; i < chunk_count; i++)
+                // Loop for each chunk
+                for (int chunk_index = 0; chunk_index < chunk_count; chunk_index++)
                 {
-                    if (this.Chunks[i] == null)
+                    if (this.Chunks[chunk_index] == null)
                     {
-                        this.Chunks[i] = new Chunk();
+                        this.Chunks[chunk_index] = new Chunk();
                     }
 
-                    this.Chunks[i].AddLayer(array.Take(MAP_CHUNK_SIZE * MAP_CHUNK_SIZE).ToArray());
-                    array = array.Skip(MAP_CHUNK_SIZE * MAP_CHUNK_SIZE).ToArray();
+                    int[] buffer = new int[MAP_CHUNK_SIZE * MAP_CHUNK_SIZE];
+
+                    //We need 16 segments to make a chunk
+                    for (int segment_index = 0; segment_index < MAP_CHUNK_SIZE; segment_index++)
+                    {
+                        // First we need to find the find the segment index by taking into account the chunk_index
+                        int index = ((segment_index * ((chunk_width_count) * MAP_CHUNK_SIZE)) + chunk_index * MAP_CHUNK_SIZE);
+
+                        Array.Copy(map_array, index, buffer, segment_index * MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
+                    }
+
+                    this.Chunks[chunk_index].AddLayer(buffer);
                 }
             }
 
