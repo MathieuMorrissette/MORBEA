@@ -27,37 +27,43 @@ namespace WebServer.websites.beamor.models.map
             int chunk_width_count = (this.Width / MAP_CHUNK_SIZE);
             int chunk_height_count = (this.Height / MAP_CHUNK_SIZE);
             int chunk_count = chunk_width_count * chunk_height_count;
-
+            int row_length = MAP_CHUNK_SIZE * chunk_width_count * MAP_CHUNK_SIZE;
 
             this.Chunks = new Chunk[chunk_count];
 
             JToken layers = mapobject["layers"];
 
+            int layer_index = 0;
             foreach (JToken token in layers)
             {
                 int[] map_array = token["data"].Values<int>().ToArray();
 
-                // Loop for each chunk
-                for (int chunk_index = 0; chunk_index < chunk_count; chunk_index++)
+
+                for (int row = 0; row < this.Height; row++)
                 {
-                    if (this.Chunks[chunk_index] == null)
+                    for (int segment_x = 0; segment_x < chunk_width_count; segment_x++)
                     {
-                        this.Chunks[chunk_index] = new Chunk();
+                        //Find the chunk index
+                        int chunk_index = ((row / MAP_CHUNK_SIZE) * chunk_width_count) + segment_x;
+
+                        if (this.Chunks[chunk_index] == null)
+                        {
+                            this.Chunks[chunk_index] = new Chunk();
+                        }
+
+                        // Find the segment index in the array
+                        int segment_index = (row * MAP_CHUNK_SIZE * chunk_width_count) + segment_x * MAP_CHUNK_SIZE;
+
+                        if (this.Chunks[chunk_index].Layers.Count < (layer_index + 1))
+                        {
+                            this.Chunks[chunk_index].Layers.Add(new int[MAP_CHUNK_SIZE * MAP_CHUNK_SIZE]);
+                        }
+
+                        Array.Copy(map_array, segment_index, this.Chunks[chunk_index].Layers[layer_index], segment_x * MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
                     }
-
-                    int[] buffer = new int[MAP_CHUNK_SIZE * MAP_CHUNK_SIZE];
-
-                    //We need 16 segments to make a chunk
-                    for (int segment_index = 0; segment_index < MAP_CHUNK_SIZE; segment_index++)
-                    {
-                        // First we need to find the find the segment index by taking into account the chunk_index
-                        int index = ((segment_index * ((chunk_width_count) * MAP_CHUNK_SIZE)) + chunk_index * MAP_CHUNK_SIZE);
-
-                        Array.Copy(map_array, index, buffer, segment_index * MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
-                    }
-
-                    this.Chunks[chunk_index].AddLayer(buffer);
                 }
+                
+                layer_index++;
             }
 
             JToken tilesets = mapobject["tilesets"];

@@ -37,7 +37,7 @@ namespace WebServer.websites.beamor.controllers
 
             if (args[0] == "GetChunk")
             {
-                context.Send(JsonConvert.SerializeObject(main_map.Chunks[20]));
+                context.Send(JsonConvert.SerializeObject(main_map.Chunks[0]));
             }
 
             return true;
