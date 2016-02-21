@@ -1,0 +1,72 @@
+On voudrait qu'un personnage vive des aventure et fasse des quêtes.
+Il devrat combattre des npc par le biais de skill.
+
+
+Stats possibles:
+str
+def
+hp
+
+===========================================================================================
+V1
+===========================================================================================
+
+character
+-----------------
+godmode --> bool
+name --> String
+health --> int
+strengh --> int
+defence --> int
+movementSpeed --> double //modificateur
+attackSpeed --> double   //modificateur
+
+posiionInfo --> positionInfo
+
+player : character
+------------------
+
+
+
+positionInfo
+----------------------
+MapChunkName --> string 
+
+PosX --> float
+PosY --> float
+
+
+chunck
+-------------------------
+CHUCK_SIZE 
+TILE_SIZE
+
+tile[CHUCK_SIZE,CHUCK_SIZE]
+
+
+tile
+------------------------------
+stack<TileLayer> Layers --> stack
+Walkable --> bool
+
+
+tileLayer
+------------------------------
+imageName --> string
+
+
+========================================================================================
+Par la suite V2
+========================================================================================
+ChunckMovement,quest,gear
+
+
+npc : character
+------------------
+friendly --> bool
+text  --> string
+
+
+
+monster : npc
+------------------

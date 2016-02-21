@@ -11,5 +11,10 @@ namespace WebServer.websites.beamor.models
         public Player(string name) : base(name)
         {
         }
+
+        public Player(string name, int health, int strengh, int defence) 
+            : base(name,health,strengh,defence)
+        {
+        }
     }
 }

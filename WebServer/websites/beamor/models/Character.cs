@@ -17,9 +17,26 @@ namespace WebServer.websites.beamor.models
 
         public PositionInfo PositionInfo = new PositionInfo();
 
+        //constructor
         public Character(string name)
         {
             this.Name = name;
+        }
+
+        //constructor
+        public Character(string name, bool godmode)
+        {
+            Name = name;
+            Godmode = godmode;
+        }
+
+        //construtor
+        public Character(string name, int health, int strength, int defence)
+        {
+            Name = name;
+            Health = health;
+            Strengh = strength;
+            Defence = defence;
         }
 
         public override string ToString()
