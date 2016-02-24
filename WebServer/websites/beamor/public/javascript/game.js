@@ -2,17 +2,37 @@
     var chunk_size = 16; // Number of tiles
     var c = document.getElementById("game");
     var canvas = c.getContext("2d");
-    c.width = window.innerWidth;
-    c.height = window.innerHeight;
 
-    var map_info = JSON.parse(Get("http://localhost:8080/api/GetMapInfo/"));
+    /*var map_info = JSON.parse(Get("http://localhost:8080/api/GetMapInfo/"));
     var tilesetName = map_info.tilesets[0].ImageName;
     var tilesetWidth = map_info.tilesets[0].Width;
     var tileset = new Image;
     tileset.src = "http://localhost:8080/resources/tiles/" + tilesetName + ".png"
     var chunk = JSON.parse(Get("http://localhost:8080/api/GetChunk/"));
-    var player_info = JSON.parse(Get("http://localhost:8080/api/GetPlayer/"));
 
+
+    var player_info = JSON.parse(Get("http://localhost:8080/api/GetPlayer/"));*/
+
+    var map_info;
+    
+
+    function WebSocketOpened(event)
+    {
+        websocket
+    }
+
+    function DataReceived(event)
+    {
+    
+    }
+
+    function WebSocketClosed(event)
+    {
+    }
+
+    function ErrorReceived(event)
+    {
+    }
 
     function drawTile(tile_value, posX, posY) {
         var col_count = tilesetWidth / 32;
@@ -41,6 +61,12 @@
 
     var lastUpdate = Date.now();
 
+    function CheckResize()
+    {
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+    }
+
     function loop()
     {
         var now = Date.now();
@@ -48,8 +74,10 @@
         lastUpdate = now;
 
         canvas.clearRect(0, 0, c.width, c.height);
-
-        for (var i = 0; i < chunk.Layers.length; i++) {
+        canvas.scale(2, 2);
+        CheckResize();
+        DrawPlayer();
+        /*for (var i = 0; i < chunk.Layers.length; i++) {
             for (var j = 0; j < chunk.Layers[0].length; j++) {
                 if (chunk.Layers[i][j] == 0)
                 {
@@ -58,13 +86,13 @@
                 var position = GetPosition(j);
                 drawTile(chunk.Layers[i][j], position.x, position.y);
             }
-        }
+        }*/
 
-        calculate_position(dt);
-        draw_Player();
+        //calculate_position(dt);
+
     }
 
-    function calculate_position(delta_time)
+    /*function calculate_position(delta_time)
     {
         var move_count =  delta_time / 10;
 
@@ -83,12 +111,12 @@
         if (map[83]) {
             player_info.PositionInfo.PosY += move_count;
         }
-    }
+    }*/
 
-    function draw_Player()
+    function DrawPlayer()
     {
         var image = GetPlayerImage(player_info);
-        canvas.drawImage(image, player_info.PositionInfo.PosX, player_info.PositionInfo.PosY);
+        canvas.drawImage(image, (c.width / 2) - (image.width / 2), (c.height / 2) - (image.height / 2));
     }
 
     function GetPlayerImage(player)

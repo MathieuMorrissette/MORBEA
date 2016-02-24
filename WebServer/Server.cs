@@ -58,8 +58,11 @@ namespace WebServer
                     {
                         httpListenerContext.Send("error");
                     }
-                    
-                    httpListenerContext.Response.Close();
+
+                    if (!httpListenerContext.Request.IsWebSocketRequest)
+                    {
+                        httpListenerContext.Response.Close();
+                    }
                 });
             }
         }

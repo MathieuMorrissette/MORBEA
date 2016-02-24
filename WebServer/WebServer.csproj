@@ -93,6 +93,7 @@
   <ItemGroup>
     <Content Include="websites\beamor\public\html\game.html" />
     <Content Include="websites\beamor\public\javascript\game.js" />
+    <Content Include="websites\beamor\public\javascript\websocket.js" />
     <Content Include="websites\beamor\public\resources\tiles\green_grass.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
