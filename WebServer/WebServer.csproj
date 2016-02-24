@@ -88,13 +88,18 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="websites\beamor\interfaces\" />
+    <Folder Include="websites\beamor\public\javascript\" />
     <Folder Include="websites\beamor\public\resources\characters\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="websites\beamor\public\html\game.html" />
-    <Content Include="websites\beamor\public\javascript\game.js" />
-    <Content Include="websites\beamor\public\javascript\websocket.js" />
     <Content Include="websites\beamor\public\resources\tiles\green_grass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameClient\GameClient.csproj">
+      <Project>{33a34a20-1693-4481-8f34-3b79d899ea78}</Project>
+      <Name>GameClient</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
