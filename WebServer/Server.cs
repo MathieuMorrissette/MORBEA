@@ -2,10 +2,9 @@
 using WebServer.websites.beamor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
+using logger;
 
 namespace WebServer
 {
@@ -37,33 +36,41 @@ namespace WebServer
         public void Start()
         {
             this.stop = false;
-            this.httpListener.Start();
-
-            while (!stop)
-            {
-                HttpListenerContext httpListenerContext = this.httpListener.GetContext();
-                this.CheckExpiredClient();
-                Task.Run(() =>
+            try {
+                this.httpListener.Start();
+            
+                while (!stop)
                 {
-                    Client client = this.GetClient(httpListenerContext);
-
-                    string hostName = httpListenerContext.Request.Url.Host;
-
-                    if (Server.websites.ContainsKey(hostName))
+                    KMLogger.Log("Server listening..", KMLInfo.MType.Info);
+                    HttpListenerContext httpListenerContext = this.httpListener.GetContext();
+                    this.CheckExpiredClient();
+                    Task.Run(() =>
                     {
-                        var siteWeb = websites[hostName](client, httpListenerContext);
-                        siteWeb.HandleRequest();
-                    }
-                    else
-                    {
-                        httpListenerContext.Send("error");
-                    }
+                        Client client = this.GetClient(httpListenerContext);
 
-                    if (!httpListenerContext.Request.IsWebSocketRequest)
-                    {
-                        httpListenerContext.Response.Close();
-                    }
-                });
+                        string hostName = httpListenerContext.Request.Url.Host;
+
+                        if (Server.websites.ContainsKey(hostName))
+                        {
+                            var siteWeb = websites[hostName](client, httpListenerContext);
+                            siteWeb.HandleRequest();
+                        }
+                        else
+                        {
+                            httpListenerContext.Send("error");
+                        }
+
+                        if (!httpListenerContext.Request.IsWebSocketRequest)
+                        {
+                            httpListenerContext.Response.Close();
+                        }
+                    });
+                }
+                
+            }
+            catch (Exception e)
+            {
+                 KMLogger.Log(e.Message, KMLInfo.MType.Error);
             }
         }
 
