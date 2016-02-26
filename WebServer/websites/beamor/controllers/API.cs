@@ -17,7 +17,7 @@ namespace WebServer.websites.beamor.controllers
 {
     public class API : IController
     {
-        private static Map main_map;
+        public static Map main_map;
         private static Dictionary<Guid, WebSocket> websockets = new Dictionary<Guid, WebSocket>();
 
         public API()
@@ -25,6 +25,7 @@ namespace WebServer.websites.beamor.controllers
             if (main_map == null)
             {
                 main_map = new Map(File.ReadAllText(Beamor.WEBSITE_ROOT_PATH + "maps/main_map.json"));
+                main_map.MapName = "Map de test";
             }
 
         }
@@ -90,6 +91,23 @@ namespace WebServer.websites.beamor.controllers
             ReceiveData(websocketContext.WebSocket, client);
         }
 
+        public static WebSocket GetWebsocket(Client client)
+        {
+            if (client == null)
+            {
+                return null;
+            }
+
+            if (API.websockets.ContainsKey(client.ID))
+            {
+                return API.websockets[client.ID];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         private async void ReceiveData(WebSocket websocket, Client client)
         {
             if (websocket == null)
@@ -123,21 +141,16 @@ namespace WebServer.websites.beamor.controllers
             {
                 string encodedData = Encoding.UTF8.GetString(data, 0, length);
 
-                Query query = JsonConvert.DeserializeObject<Query>(encodedData);
+                Request query = JsonConvert.DeserializeObject<Request>(encodedData);
 
-                
-
-                byte[] buffer = new byte[length];
-                Array.Copy(data, buffer, length);
-                SendToAllClients(buffer);
-            }
-            else
-            {
-                Console.WriteLine("dafuk did you send me!");
+                if (query != null)
+                {
+                    GameController.ProcessQuery(client, query);
+                }
             }
         }
 
-        private async void SendData(WebSocket websocket, byte[] data, WebSocketMessageType type)
+        public static async void SendData(WebSocket websocket, byte[] data, WebSocketMessageType type)
         {
             if (websocket == null)
             {

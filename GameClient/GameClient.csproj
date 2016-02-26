@@ -24,7 +24,9 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="MapInfo.ts" />
-    <TypeScriptCompile Include="Query.ts" />
+    <TypeScriptCompile Include="Request.ts" />
+    <TypeScriptCompile Include="Response.ts" />
+    <TypeScriptCompile Include="Tileset.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>

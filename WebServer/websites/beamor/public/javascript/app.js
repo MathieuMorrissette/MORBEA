@@ -21,13 +21,24 @@ var GameClient = (function () {
         console.log("Error");
     };
     GameClient.prototype.SocketMessageReceived = function (event) {
-        console.log(event.data);
+        var response = JSON.parse(event.data);
+        if (response == null) {
+            return;
+        }
+        if (response.Message == "map_info") {
+            var receivedMapInfo = response.Data;
+            if (receivedMapInfo == null) {
+                return;
+            }
+            this.map_info = receivedMapInfo;
+            console.log("Received the map info! MapName " + this.map_info.MapName);
+        }
     };
     GameClient.prototype.GetMapInfo = function () {
         if (!(this.websocket.readyState == 1)) {
             return false;
         }
-        var request_mapinfo = new Query("map_info");
+        var request_mapinfo = new Request("map_info");
         this.websocket.send(JSON.stringify(request_mapinfo));
     };
     return GameClient;
@@ -40,11 +51,21 @@ var MapInfo = (function () {
     }
     return MapInfo;
 }());
-var Query = (function () {
-    function Query(request) {
-        this.Request = "";
-        this.Request = request;
+var Request = (function () {
+    function Request(message) {
+        this.Message = "";
+        this.Message = message;
     }
-    return Query;
+    return Request;
+}());
+var Response = (function () {
+    function Response() {
+    }
+    return Response;
+}());
+var Tileset = (function () {
+    function Tileset() {
+    }
+    return Tileset;
 }());
 //# sourceMappingURL=app.js.map

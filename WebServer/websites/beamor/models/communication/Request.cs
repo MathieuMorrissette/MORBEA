@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace WebServer.websites.beamor.models
 {
-    public class Query
+    public class Request
     {
-        public string Request { get; set; }
+        public string Message { get; set; }
     }
 }

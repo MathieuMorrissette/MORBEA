@@ -83,10 +83,14 @@ namespace WebServer.websites.beamor.models.map
             Console.WriteLine("Map Created");
         }
 
-        public void LoadMap(string data)
+        public MapInfo GetMapInfo()
         {
+            MapInfo mapInfo = new MapInfo();
 
+            mapInfo.MapName = this.MapName;
+            mapInfo.Tilesets = this.Tilesets;
 
+            return mapInfo;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿class GameClient {
     private websocket_url: string = "ws://localhost:8080/api/websocket";
     private websocket: WebSocket;
+    private map_info: MapInfo;
 
     constructor() {
         this.CreateWebSocket();
@@ -30,8 +31,28 @@
         console.log("Error");
     }
 
-    private SocketMessageReceived(event: MessageEvent) {
-        console.log(event.data);
+    private SocketMessageReceived(event: MessageEvent)
+    {
+        var response = JSON.parse(event.data) as Response;
+
+        if (response == null)
+        {
+            return;
+        }
+
+        if (response.Message == "map_info")
+        {
+            var receivedMapInfo = response.Data as MapInfo;
+
+            if (receivedMapInfo == null)
+            {
+                return;
+            }
+
+            this.map_info = receivedMapInfo;
+            console.log("Received the map info! MapName " + this.map_info.MapName);
+        }
+            
     }
 
     private GetMapInfo(): Boolean {
@@ -39,7 +60,7 @@
             return false;
         }
 
-        var request_mapinfo = new Query("map_info");
+        var request_mapinfo = new Request("map_info");
         this.websocket.send(JSON.stringify(request_mapinfo));
     }
 
