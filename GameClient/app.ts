@@ -1,37 +1,50 @@
-﻿var GameClient = (function () {
-    function GameClient() {
-        this.websocket_url = "ws://localhost:8080/api/websocket";
+﻿class GameClient {
+    private websocket_url: string = "ws://localhost:8080/api/websocket";
+    private websocket: WebSocket;
+
+    constructor() {
         this.CreateWebSocket();
     }
-    GameClient.prototype.CreateWebSocket = function () {
-        var _this = this;
+
+    private CreateWebSocket() {
         this.websocket = new WebSocket(this.websocket_url);
-        this.websocket.onopen = function (event) { _this.SocketOpened(event); };
-        this.websocket.onclose = function (event) { _this.SocketClosed(event); };
-        this.websocket.onerror = function (event) { _this.SocketError(event); };
-        this.websocket.onmessage = function (event) { _this.SocketMessageReceived(event); };
-    };
-    GameClient.prototype.SocketOpened = function (event) {
+
+        this.websocket.onopen = (event) => { this.SocketOpened(event); };
+
+        this.websocket.onclose = (event) => { this.SocketClosed(event); };
+
+        this.websocket.onerror = (event) => { this.SocketError(event); };
+
+        this.websocket.onmessage = (event) => { this.SocketMessageReceived(event); };
+    }
+
+    private SocketOpened(event: Event) {
         this.GetMapInfo();
-    };
-    GameClient.prototype.SocketClosed = function (event) {
+    }
+
+    private SocketClosed(event: CloseEvent) {
         console.log("Socket Closed!");
-    };
-    GameClient.prototype.SocketError = function (event) {
+    }
+
+    private SocketError(event: Event) {
         console.log("Error");
-    };
-    GameClient.prototype.SocketMessageReceived = function (event) {
+    }
+
+    private SocketMessageReceived(event: MessageEvent) {
         console.log(event.data);
-    };
-    GameClient.prototype.GetMapInfo = function () {
+    }
+
+    private GetMapInfo(): Boolean {
         if (!(this.websocket.readyState == 1)) {
             return false;
         }
-        var request_mapinfo = new Request("map_info");
+
+        var request_mapinfo = new Query("map_info");
         this.websocket.send(JSON.stringify(request_mapinfo));
-    };
-    return GameClient;
-} ());
+    }
+
+}
+
 window.onload = function () {
     new GameClient();
-};
+}

@@ -7,8 +7,8 @@
     <ProjectGuid>{56CF8165-FC08-4851-9E0B-E4ED645CAB46}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HttpServer</RootNamespace>
-    <AssemblyName>HttpServer</AssemblyName>
+    <RootNamespace>WebServer</RootNamespace>
+    <AssemblyName>WebServer</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -70,6 +70,7 @@
     <Compile Include="websites\beamor\controllers\API.cs" />
     <Compile Include="websites\beamor\controllers\FileProvider.cs" />
     <Compile Include="websites\beamor\controllers\Game.cs" />
+    <Compile Include="websites\beamor\controllers\GameController.cs" />
     <Compile Include="websites\beamor\models\Character.cs" />
     <Compile Include="websites\beamor\models\Enum.cs" />
     <Compile Include="websites\beamor\models\map\Chunk.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="websites\beamor\models\map\Tileset.cs" />
     <Compile Include="websites\beamor\models\Player.cs" />
     <Compile Include="websites\beamor\models\PositionInfo.cs" />
+    <Compile Include="websites\beamor\models\Query.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

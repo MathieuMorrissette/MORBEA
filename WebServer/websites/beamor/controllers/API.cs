@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -114,13 +115,17 @@ namespace WebServer.websites.beamor.controllers
             }
         }
 
+
         private void DataReceived(byte[] data, int length, Client client, WebSocketMessageType type)
         {
             Console.WriteLine("Data Received!");
             if (type == WebSocketMessageType.Text)
             {
                 string encodedData = Encoding.UTF8.GetString(data, 0, length);
-                Console.WriteLine(encodedData);
+
+                Query query = JsonConvert.DeserializeObject<Query>(encodedData);
+
+                
 
                 byte[] buffer = new byte[length];
                 Array.Copy(data, buffer, length);

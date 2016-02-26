@@ -27,7 +27,7 @@ var GameClient = (function () {
         if (!(this.websocket.readyState == 1)) {
             return false;
         }
-        var request_mapinfo = new Request("map_info");
+        var request_mapinfo = new Query("map_info");
         this.websocket.send(JSON.stringify(request_mapinfo));
     };
     return GameClient;
@@ -40,11 +40,11 @@ var MapInfo = (function () {
     }
     return MapInfo;
 }());
-var Request = (function () {
-    function Request(query) {
-        this.Query = "";
-        this.Query = query;
+var Query = (function () {
+    function Query(request) {
+        this.Request = "";
+        this.Request = request;
     }
-    return Request;
+    return Query;
 }());
 //# sourceMappingURL=app.js.map
