@@ -50,7 +50,7 @@ namespace WebServer.websites.beamor.controllers
 
                 Response response = new Response();
                 response.Message = "get_chunk";
-                response.Data = JsonConvert.SerializeObject(API.main_map.ChunkDictionnary[new Location(Convert.ToInt32(args[1]), Convert.ToInt32(args[2]))]);
+                response.Data = API.main_map.ChunkDictionnary[new Location(Convert.ToInt32(args[1]), Convert.ToInt32(args[2]))];
                 
                 string data = JsonConvert.SerializeObject(response);
                 API.SendData(socket, Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text);

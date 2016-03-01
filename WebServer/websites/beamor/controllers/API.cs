@@ -31,21 +31,6 @@ namespace WebServer.websites.beamor.controllers
         }
         public bool HandleRequest(Client client, HttpListenerContext context, params string[] args)
         {
-            if (args[0] == "GetMapInfo")
-            {
-                Dictionary<string, object> mapInfo = new Dictionary<string, object>();
-                mapInfo.Add("map_name", main_map.MapName);
-                mapInfo.Add("tilesets", main_map.Tilesets);
-
-                context.Send(JsonConvert.SerializeObject(mapInfo));
-            }
-
-            if (args[0] == "GetChunk")
-            {
-                context.Send(JsonConvert.SerializeObject(main_map.ChunkDictionnary[new Location(0, 0)]));
-            }
-
-
             if (args[0] == "websocket")
             {
                 Console.WriteLine("websocket");

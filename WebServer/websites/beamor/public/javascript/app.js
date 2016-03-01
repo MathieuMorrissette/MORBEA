@@ -3,6 +3,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var TILE_SIZE = 32;
+var CHUNK_SIZE = 16; // Number of tiles
 var GameClient = (function () {
     function GameClient() {
         this.websocket_url = "ws://localhost:8080/api/websocket";
@@ -52,6 +54,31 @@ var GameClient = (function () {
             console.log("Chunk Received from server!");
         }
     };
+    GameClient.prototype.GetPosition = function (indexOfArray) {
+        var position = {};
+        position.x = indexOfArray % CHUNK_SIZE;
+        position.y = Math.floor(indexOfArray / CHUNK_SIZE);
+        return position;
+    };
+    GameClient.prototype.DrawTestChunk = function () {
+        for (var i = 0; i < this.ChunkTest.Layers.length; i++) {
+            for (var j = 0; j < this.ChunkTest.Layers[0].length; j++) {
+                if (this.ChunkTest.Layers[i][j] == 0) {
+                    continue;
+                }
+                var position = this.GetPosition(j);
+                this.DrawTile(this.ChunkTest.Layers[i][j], position.x, position.y);
+            }
+        }
+    };
+    GameClient.prototype.DrawTile = function (tile_value, posX, posY) {
+        var col_count = this.map_info.Tilesets[0].Width;
+        var x = tile_value % col_count;
+        var y = Math.floor(tile_value / col_count);
+        x = (x * TILE_SIZE) - 32;
+        y = y * TILE_SIZE;
+        this.ctx.drawImage(this.map_info.Tilesets[0].GetImage(), x, y, 32, 32, posX * 32, posY * 32, 32, 32);
+    };
     GameClient.prototype.GetPlayerInfo = function () {
         if (!(this.websocket.readyState == 1)) {
             return false;
@@ -100,6 +127,7 @@ var GameClient = (function () {
     GameClient.prototype.DrawLoop = function () {
         this.ClearCanvas();
         //this.CheckResize();
+        this.DrawTestChunk();
         this.DrawPlayer();
     };
     return GameClient;
@@ -108,6 +136,22 @@ var gameclient;
 window.onload = function () {
     gameclient = new GameClient();
 };
+var Request = (function () {
+    function Request() {
+        this.Message = "";
+    }
+    Request.GetRequest = function (request) {
+        var buffer = new Request();
+        buffer.Message = request.Message;
+        return buffer;
+    };
+    return Request;
+}());
+var Response = (function () {
+    function Response() {
+    }
+    return Response;
+}());
 var Character = (function () {
     function Character() {
     }
@@ -123,35 +167,6 @@ var Chunk = (function () {
         return buffer;
     };
     return Chunk;
-}());
-var PlayerType;
-(function (PlayerType) {
-    PlayerType[PlayerType["Warrior"] = 0] = "Warrior";
-    PlayerType[PlayerType["Archer"] = 1] = "Archer";
-    PlayerType[PlayerType["Thief"] = 2] = "Thief";
-    PlayerType[PlayerType["Magician"] = 3] = "Magician";
-})(PlayerType || (PlayerType = {}));
-var SerializationHelper = (function () {
-    function SerializationHelper() {
-    }
-    SerializationHelper.toInstance = function (obj, json) {
-        var jsonObj = JSON.parse(json);
-        if (typeof obj["fromJSON"] === "function") {
-            obj["fromJSON"](jsonObj);
-        }
-        else {
-            for (var propName in jsonObj) {
-                obj[propName] = jsonObj[propName];
-            }
-        }
-        return obj;
-    };
-    return SerializationHelper;
-}());
-var IRequest = (function () {
-    function IRequest() {
-    }
-    return IRequest;
 }());
 var MapInfo = (function () {
     function MapInfo() {
@@ -194,22 +209,6 @@ var PositionInfo = (function () {
     }
     return PositionInfo;
 }());
-var Request = (function () {
-    function Request() {
-        this.Message = "";
-    }
-    Request.GetRequest = function (request) {
-        var buffer = new Request();
-        buffer.Message = request.Message;
-        return buffer;
-    };
-    return Request;
-}());
-var Response = (function () {
-    function Response() {
-    }
-    return Response;
-}());
 var Tileset = (function () {
     function Tileset() {
     }
@@ -222,6 +221,11 @@ var Tileset = (function () {
         }
         return list;
     };
+    Tileset.prototype.GetImage = function () {
+        var image = new Image();
+        image.src = "http://localhost:8080/resources/tiles/" + this.ImageName + ".png";
+        return image;
+    };
     Tileset.GetTileset = function (tileset) {
         var buffer = new Tileset();
         buffer.ImageName = tileset.ImageName;
@@ -230,5 +234,34 @@ var Tileset = (function () {
         return buffer;
     };
     return Tileset;
+}());
+var PlayerType;
+(function (PlayerType) {
+    PlayerType[PlayerType["Warrior"] = 0] = "Warrior";
+    PlayerType[PlayerType["Archer"] = 1] = "Archer";
+    PlayerType[PlayerType["Thief"] = 2] = "Thief";
+    PlayerType[PlayerType["Magician"] = 3] = "Magician";
+})(PlayerType || (PlayerType = {}));
+var SerializationHelper = (function () {
+    function SerializationHelper() {
+    }
+    SerializationHelper.toInstance = function (obj, json) {
+        var jsonObj = JSON.parse(json);
+        if (typeof obj["fromJSON"] === "function") {
+            obj["fromJSON"](jsonObj);
+        }
+        else {
+            for (var propName in jsonObj) {
+                obj[propName] = jsonObj[propName];
+            }
+        }
+        return obj;
+    };
+    return SerializationHelper;
+}());
+var IRequest = (function () {
+    function IRequest() {
+    }
+    return IRequest;
 }());
 //# sourceMappingURL=app.js.map

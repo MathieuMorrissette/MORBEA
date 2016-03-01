@@ -1,4 +1,7 @@
-﻿class GameClient
+﻿var TILE_SIZE = 32;
+var CHUNK_SIZE = 16; // Number of tiles
+
+class GameClient
 {
     private websocket_url: string = "ws://localhost:8080/api/websocket";
     private websocket: WebSocket;
@@ -80,6 +83,39 @@
         }
     }
 
+    private GetPosition(indexOfArray)
+    {
+        var position: any = {};
+        position.x = indexOfArray % CHUNK_SIZE;
+        position.y = Math.floor(indexOfArray / CHUNK_SIZE);
+        return position;
+    }
+
+    private DrawTestChunk()
+    {
+        for (var i = 0; i < this.ChunkTest.Layers.length; i++) {
+            for (var j = 0; j < this.ChunkTest.Layers[0].length; j++) {
+                if (this.ChunkTest.Layers[i][j] == 0) {
+                    continue;
+                }
+                var position = this.GetPosition(j);
+                this.DrawTile(this.ChunkTest.Layers[i][j], position.x, position.y);
+            }
+        }
+    }
+
+    private DrawTile(tile_value: number, posX: number, posY: number)
+    {
+        var col_count = this.map_info.Tilesets[0].Width;
+        var x = tile_value % col_count;
+        var y = Math.floor(tile_value / col_count);
+
+        x = (x * TILE_SIZE) - 32;
+        y = y * TILE_SIZE;
+
+        this.ctx.drawImage(this.map_info.Tilesets[0].GetImage(), x, y, 32, 32, posX * 32, posY * 32, 32, 32);
+    }
+
     private GetPlayerInfo(): Boolean
     {
         if (!(this.websocket.readyState == 1))
@@ -152,6 +188,7 @@
     {
         this.ClearCanvas();
         //this.CheckResize();
+        this.DrawTestChunk();
         this.DrawPlayer();
     }
 }

@@ -18,6 +18,14 @@
         return list;
     }
 
+    public GetImage(): Image
+    {
+        var image = new Image();
+        image.src = "http://localhost:8080/resources/tiles/" + this.ImageName + ".png";
+
+        return image;
+    }
+
     public static GetTileset(tileset: ITileset): Tileset
     {
         var buffer = new Tileset();
