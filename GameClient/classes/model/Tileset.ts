@@ -18,7 +18,7 @@
         return list;
     }
 
-    public GetImage(): Image
+    public GetImage(): HTMLImageElement
     {
         var image = new Image();
         image.src = "http://localhost:8080/resources/tiles/" + this.ImageName + ".png";

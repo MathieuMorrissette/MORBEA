@@ -72,7 +72,7 @@ var GameClient = (function () {
         }
     };
     GameClient.prototype.DrawTile = function (tile_value, posX, posY) {
-        var col_count = this.map_info.Tilesets[0].Width;
+        var col_count = this.map_info.Tilesets[0].Width / 32;
         var x = tile_value % col_count;
         var y = Math.floor(tile_value / col_count);
         x = (x * TILE_SIZE) - 32;
@@ -98,8 +98,8 @@ var GameClient = (function () {
         return true;
     };
     GameClient.prototype.GetChunks = function () {
-        for (var i = 0; i < 5; i++) {
-            for (var j = 0; j < 5; j++) {
+        for (var i = 0; i < 1; i++) {
+            for (var j = 0; j < 1; j++) {
                 var chunk_request = new Request();
                 chunk_request.Message = "get_chunk|" + i + "|" + j;
                 this.websocket.send(JSON.stringify(chunk_request));
@@ -136,22 +136,6 @@ var gameclient;
 window.onload = function () {
     gameclient = new GameClient();
 };
-var Request = (function () {
-    function Request() {
-        this.Message = "";
-    }
-    Request.GetRequest = function (request) {
-        var buffer = new Request();
-        buffer.Message = request.Message;
-        return buffer;
-    };
-    return Request;
-}());
-var Response = (function () {
-    function Response() {
-    }
-    return Response;
-}());
 var Character = (function () {
     function Character() {
     }
@@ -167,6 +151,35 @@ var Chunk = (function () {
         return buffer;
     };
     return Chunk;
+}());
+var PlayerType;
+(function (PlayerType) {
+    PlayerType[PlayerType["Warrior"] = 0] = "Warrior";
+    PlayerType[PlayerType["Archer"] = 1] = "Archer";
+    PlayerType[PlayerType["Thief"] = 2] = "Thief";
+    PlayerType[PlayerType["Magician"] = 3] = "Magician";
+})(PlayerType || (PlayerType = {}));
+var SerializationHelper = (function () {
+    function SerializationHelper() {
+    }
+    SerializationHelper.toInstance = function (obj, json) {
+        var jsonObj = JSON.parse(json);
+        if (typeof obj["fromJSON"] === "function") {
+            obj["fromJSON"](jsonObj);
+        }
+        else {
+            for (var propName in jsonObj) {
+                obj[propName] = jsonObj[propName];
+            }
+        }
+        return obj;
+    };
+    return SerializationHelper;
+}());
+var IRequest = (function () {
+    function IRequest() {
+    }
+    return IRequest;
 }());
 var MapInfo = (function () {
     function MapInfo() {
@@ -209,6 +222,22 @@ var PositionInfo = (function () {
     }
     return PositionInfo;
 }());
+var Request = (function () {
+    function Request() {
+        this.Message = "";
+    }
+    Request.GetRequest = function (request) {
+        var buffer = new Request();
+        buffer.Message = request.Message;
+        return buffer;
+    };
+    return Request;
+}());
+var Response = (function () {
+    function Response() {
+    }
+    return Response;
+}());
 var Tileset = (function () {
     function Tileset() {
     }
@@ -234,34 +263,5 @@ var Tileset = (function () {
         return buffer;
     };
     return Tileset;
-}());
-var PlayerType;
-(function (PlayerType) {
-    PlayerType[PlayerType["Warrior"] = 0] = "Warrior";
-    PlayerType[PlayerType["Archer"] = 1] = "Archer";
-    PlayerType[PlayerType["Thief"] = 2] = "Thief";
-    PlayerType[PlayerType["Magician"] = 3] = "Magician";
-})(PlayerType || (PlayerType = {}));
-var SerializationHelper = (function () {
-    function SerializationHelper() {
-    }
-    SerializationHelper.toInstance = function (obj, json) {
-        var jsonObj = JSON.parse(json);
-        if (typeof obj["fromJSON"] === "function") {
-            obj["fromJSON"](jsonObj);
-        }
-        else {
-            for (var propName in jsonObj) {
-                obj[propName] = jsonObj[propName];
-            }
-        }
-        return obj;
-    };
-    return SerializationHelper;
-}());
-var IRequest = (function () {
-    function IRequest() {
-    }
-    return IRequest;
 }());
 //# sourceMappingURL=app.js.map

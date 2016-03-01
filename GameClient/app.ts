@@ -106,7 +106,7 @@ class GameClient
 
     private DrawTile(tile_value: number, posX: number, posY: number)
     {
-        var col_count = this.map_info.Tilesets[0].Width;
+        var col_count = this.map_info.Tilesets[0].Width / 32;
         var x = tile_value % col_count;
         var y = Math.floor(tile_value / col_count);
 
@@ -145,9 +145,9 @@ class GameClient
 
     private GetChunks()
     {
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 1; i++)
         {
-            for (var j = 0; j < 5; j++)
+            for (var j = 0; j < 1; j++)
             {
                 var chunk_request = new Request();
                 chunk_request.Message = "get_chunk|" + i + "|" + j;
