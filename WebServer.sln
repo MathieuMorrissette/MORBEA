@@ -1,11 +1,10 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer", "WebServer\WebServer.csproj", "{56CF8165-FC08-4851-9E0B-E4ED645CAB46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServerTests", "WebServerTests\WebServerTests.csproj", "{BBE5E188-AF78-4F71-BE1F-BA01883BCFB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameClient", "GameClient\GameClient.csproj", "{33A34A20-1693-4481-8F34-3B79D899EA78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +16,10 @@ Global
 		{56CF8165-FC08-4851-9E0B-E4ED645CAB46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56CF8165-FC08-4851-9E0B-E4ED645CAB46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56CF8165-FC08-4851-9E0B-E4ED645CAB46}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BBE5E188-AF78-4F71-BE1F-BA01883BCFB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BBE5E188-AF78-4F71-BE1F-BA01883BCFB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BBE5E188-AF78-4F71-BE1F-BA01883BCFB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BBE5E188-AF78-4F71-BE1F-BA01883BCFB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33A34A20-1693-4481-8F34-3B79D899EA78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33A34A20-1693-4481-8F34-3B79D899EA78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33A34A20-1693-4481-8F34-3B79D899EA78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33A34A20-1693-4481-8F34-3B79D899EA78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -12,7 +12,7 @@ namespace WebServer.websites.beamor.models.map
         public const byte MAP_CHUNK_SIZE = 16;
 
         public string MapName { get; set; }
-        public Chunk[] Chunks;
+        public Dictionary<Location, Chunk> ChunkDictionnary = new Dictionary<Location, Chunk>();
         public int Width { get; set; }
         public int Height { get; set; }
         public Tileset[] Tilesets { get; set; }
@@ -29,15 +29,12 @@ namespace WebServer.websites.beamor.models.map
             int chunk_count = chunk_width_count * chunk_height_count;
             int row_length = MAP_CHUNK_SIZE * chunk_width_count * MAP_CHUNK_SIZE;
 
-            this.Chunks = new Chunk[chunk_count];
-
             JToken layers = mapobject["layers"];
 
             int layer_index = 0;
             foreach (JToken token in layers)
             {
                 int[] map_array = token["data"].Values<int>().ToArray();
-
 
                 for (int row = 0; row < this.Height; row++)
                 {
@@ -46,20 +43,24 @@ namespace WebServer.websites.beamor.models.map
                         //Find the chunk index
                         int chunk_index = ((row / MAP_CHUNK_SIZE) * chunk_width_count) + segment_x;
 
-                        if (this.Chunks[chunk_index] == null)
+                        Location chunk_location = new Location(row / MAP_CHUNK_SIZE, segment_x);
+
+                        if (!this.ChunkDictionnary.ContainsKey(chunk_location))
                         {
-                            this.Chunks[chunk_index] = new Chunk();
+                            this.ChunkDictionnary.Add(chunk_location, new Chunk(chunk_location));
                         }
+
+                        Chunk chunk = this.ChunkDictionnary[chunk_location];
 
                         // Find the segment index in the array
                         int segment_index = (row * MAP_CHUNK_SIZE * chunk_width_count) + segment_x * MAP_CHUNK_SIZE;
 
-                        if (this.Chunks[chunk_index].Layers.Count < (layer_index + 1))
+                        if (chunk.Layers.Count < (layer_index + 1))
                         {
-                            this.Chunks[chunk_index].Layers.Add(new int[MAP_CHUNK_SIZE * MAP_CHUNK_SIZE]);
+                            chunk.Layers.Add(new int[MAP_CHUNK_SIZE * MAP_CHUNK_SIZE]);
                         }
 
-                        Array.Copy(map_array, segment_index, this.Chunks[chunk_index].Layers[layer_index], (row % MAP_CHUNK_SIZE) * MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
+                        Array.Copy(map_array, segment_index, chunk.Layers[layer_index], (row % MAP_CHUNK_SIZE) * MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
                     }
                 }
                 
@@ -83,10 +84,14 @@ namespace WebServer.websites.beamor.models.map
             Console.WriteLine("Map Created");
         }
 
-        public void LoadMap(string data)
+        public MapInfo GetMapInfo()
         {
+            MapInfo mapInfo = new MapInfo();
 
+            mapInfo.MapName = this.MapName;
+            mapInfo.Tilesets = this.Tilesets;
 
+            return mapInfo;
         }
     }
 }

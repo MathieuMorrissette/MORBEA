@@ -7,8 +7,8 @@
     <ProjectGuid>{56CF8165-FC08-4851-9E0B-E4ED645CAB46}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HttpServer</RootNamespace>
-    <AssemblyName>HttpServer</AssemblyName>
+    <RootNamespace>WebServer</RootNamespace>
+    <AssemblyName>WebServer</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.6.9.8\lib\net45\MySql.Data.dll</HintPath>
@@ -53,6 +56,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="logger\KMLInfo.cs" />
+    <Compile Include="logger\KMLogger.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="websites\BaseWebsite.cs" />
     <Compile Include="interfaces\IDatabase.cs" />
     <Compile Include="Client.cs" />
@@ -70,10 +81,14 @@
     <Compile Include="websites\beamor\controllers\API.cs" />
     <Compile Include="websites\beamor\controllers\FileProvider.cs" />
     <Compile Include="websites\beamor\controllers\Game.cs" />
+    <Compile Include="websites\beamor\controllers\GameController.cs" />
     <Compile Include="websites\beamor\models\Character.cs" />
+    <Compile Include="websites\beamor\models\communication\Response.cs" />
     <Compile Include="websites\beamor\models\Enum.cs" />
     <Compile Include="websites\beamor\models\map\Chunk.cs" />
+    <Compile Include="websites\beamor\models\map\Location.cs" />
     <Compile Include="websites\beamor\models\map\Map.cs" />
+    <Compile Include="websites\beamor\models\map\MapInfo.cs" />
     <Compile Include="websites\beamor\models\map\Teleport.cs" />
     <Compile Include="websites\beamor\models\map\Tile.cs" />
     <Compile Include="websites\beamor\models\Monster.cs" />
@@ -81,19 +96,31 @@
     <Compile Include="websites\beamor\models\map\Tileset.cs" />
     <Compile Include="websites\beamor\models\Player.cs" />
     <Compile Include="websites\beamor\models\PositionInfo.cs" />
+    <Compile Include="websites\beamor\models\communication\Request.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="app.manifest" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="websites\beamor\interfaces\" />
+    <Folder Include="websites\beamor\public\javascript\" />
     <Folder Include="websites\beamor\public\resources\characters\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="websites\beamor\public\html\game.html" />
-    <Content Include="websites\beamor\public\javascript\game.js" />
     <Content Include="websites\beamor\public\resources\tiles\green_grass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameClient\GameClient.csproj">
+      <Project>{33a34a20-1693-4481-8f34-3b79d899ea78}</Project>
+      <Name>GameClient</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
