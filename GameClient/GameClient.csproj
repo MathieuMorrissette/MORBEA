@@ -23,10 +23,22 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
-    <TypeScriptCompile Include="MapInfo.ts" />
-    <TypeScriptCompile Include="Request.ts" />
-    <TypeScriptCompile Include="Response.ts" />
-    <TypeScriptCompile Include="Tileset.ts" />
+    <TypeScriptCompile Include="classes\model\Character.ts" />
+    <TypeScriptCompile Include="Enums.ts" />
+    <TypeScriptCompile Include="Helpers.ts" />
+    <TypeScriptCompile Include="interfaces\ICharacter.ts" />
+    <TypeScriptCompile Include="interfaces\IMapInfo.ts" />
+    <TypeScriptCompile Include="interfaces\IPlayer.ts" />
+    <TypeScriptCompile Include="interfaces\IPositionInfo.ts" />
+    <TypeScriptCompile Include="interfaces\IRequest.ts" />
+    <TypeScriptCompile Include="interfaces\IResponse.ts" />
+    <TypeScriptCompile Include="interfaces\ITileset.ts" />
+    <TypeScriptCompile Include="classes\model\MapInfo.ts" />
+    <TypeScriptCompile Include="classes\model\Player.ts" />
+    <TypeScriptCompile Include="classes\model\PositionInfo.ts" />
+    <TypeScriptCompile Include="classes\communication\Request.ts" />
+    <TypeScriptCompile Include="classes\communication\Response.ts" />
+    <TypeScriptCompile Include="classes\model\Tileset.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>

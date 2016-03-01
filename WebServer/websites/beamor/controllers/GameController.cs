@@ -32,6 +32,17 @@ namespace WebServer.websites.beamor.controllers
                 API.SendData(socket, Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text);
             }
 
+            if (request.Message == "player_info")
+            {
+                Response response = new Response();
+                response.Message = "player_info";
+                response.Data = new Player("Kevin") { Type = PlayerType.Archer };
+
+                string data = JsonConvert.SerializeObject(response);
+
+                API.SendData(socket, Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text);
+            }
+
             return true;
         }
     }

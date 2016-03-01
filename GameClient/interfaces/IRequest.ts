@@ -1,0 +1,4 @@
+﻿class IRequest
+{
+    Message: string;
+}
