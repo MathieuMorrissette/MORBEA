@@ -1,4 +1,5 @@
-﻿class GameClient {
+﻿class GameClient
+{
     private websocket_url: string = "ws://localhost:8080/api/websocket";
     private websocket: WebSocket;
     private map_info: MapInfo;
@@ -6,15 +7,19 @@
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
+    private Chunks: Chunk[][] = new Array<Chunk[]>(5); // Must not be even
+    private ChunkTest: Chunk;
 
     constructor()
     {
         this.CreateWebSocket();
         this.canvas = document.getElementById("game") as HTMLCanvasElement;
-        this.ctx = this.canvas.getContext("2d");        
+        this.ctx = this.canvas.getContext("2d");
+        this.InitialiseCanvas();
     }
 
-    private CreateWebSocket() {
+    private CreateWebSocket()
+    {
         this.websocket = new WebSocket(this.websocket_url);
 
         this.websocket.onopen = (event) => { this.SocketOpened(event); };
@@ -26,16 +31,20 @@
         this.websocket.onmessage = (event) => { this.SocketMessageReceived(event); };
     }
 
-    private SocketOpened(event: Event) {
+    private SocketOpened(event: Event)
+    {
         this.GetMapInfo();
         this.GetPlayerInfo();
+        this.GetChunks();
     }
 
-    private SocketClosed(event: CloseEvent) {
+    private SocketClosed(event: CloseEvent)
+    {
         console.log("Socket Closed!");
     }
 
-    private SocketError(event: Event) {
+    private SocketError(event: Event)
+    {
         console.log("Error");
     }
 
@@ -59,7 +68,16 @@
             this.player_info = receivedPlayerInfo;
             console.log("Received the player info! PlayerName " + this.player_info.Name);
             this.StartLoop();
-        }            
+        }
+
+        if (response.Message == "get_chunk")
+        {
+            var buffer = response.Data as IChunk;
+            var chunk = Chunk.GetChunk(buffer);
+            this.ChunkTest = chunk;
+
+            console.log("Chunk Received from server!");
+        }
     }
 
     private GetPlayerInfo(): Boolean
@@ -89,6 +107,25 @@
         return true;
     }
 
+    private GetChunks()
+    {
+        for (var i = 0; i < 5; i++)
+        {
+            for (var j = 0; j < 5; j++)
+            {
+                var chunk_request = new Request();
+                chunk_request.Message = "get_chunk|" + i + "|" + j;
+
+                this.websocket.send(JSON.stringify(chunk_request));
+            }
+        }
+    }
+
+    private InitialiseCanvas()
+    {
+        this.ctx.msImageSmoothingEnabled = false;
+    }
+
     private DrawPlayer()
     {
         var Image = this.player_info.GetPlayerImage();
@@ -114,7 +151,7 @@
     private DrawLoop()
     {
         this.ClearCanvas();
-        this.CheckResize();
+        //this.CheckResize();
         this.DrawPlayer();
     }
 }

@@ -86,6 +86,7 @@
     <Compile Include="websites\beamor\models\communication\Response.cs" />
     <Compile Include="websites\beamor\models\Enum.cs" />
     <Compile Include="websites\beamor\models\map\Chunk.cs" />
+    <Compile Include="websites\beamor\models\map\Location.cs" />
     <Compile Include="websites\beamor\models\map\Map.cs" />
     <Compile Include="websites\beamor\models\map\MapInfo.cs" />
     <Compile Include="websites\beamor\models\map\Teleport.cs" />

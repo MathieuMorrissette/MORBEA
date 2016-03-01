@@ -9,10 +9,12 @@ namespace WebServer.websites.beamor.models
 {
     public class Chunk
     {
+        public Location Location { get; private set; }
         public List<int[]> Layers;
 
-        public Chunk()
+        public Chunk(Location location)
         {
+            this.Location = location;
             this.Layers = new List<int[]>();
         }
 

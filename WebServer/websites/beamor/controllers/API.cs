@@ -42,8 +42,9 @@ namespace WebServer.websites.beamor.controllers
 
             if (args[0] == "GetChunk")
             {
-                context.Send(JsonConvert.SerializeObject(main_map.Chunks[89]));
+                context.Send(JsonConvert.SerializeObject(main_map.ChunkDictionnary[new Location(0, 0)]));
             }
+
 
             if (args[0] == "websocket")
             {

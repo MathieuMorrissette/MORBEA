@@ -24,9 +24,12 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="classes\model\Character.ts" />
+    <TypeScriptCompile Include="classes\model\Chunk.ts" />
     <TypeScriptCompile Include="Enums.ts" />
     <TypeScriptCompile Include="Helpers.ts" />
     <TypeScriptCompile Include="interfaces\ICharacter.ts" />
+    <TypeScriptCompile Include="interfaces\IChunk.ts" />
+    <TypeScriptCompile Include="interfaces\IChunkLocation.ts" />
     <TypeScriptCompile Include="interfaces\IMapInfo.ts" />
     <TypeScriptCompile Include="interfaces\IPlayer.ts" />
     <TypeScriptCompile Include="interfaces\IPositionInfo.ts" />

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebServer.websites.beamor.models;
 using WebServer.websites.beamor.models.communication;
+using WebServer.websites.beamor.models.map;
 
 namespace WebServer.websites.beamor.controllers
 {
@@ -40,6 +41,18 @@ namespace WebServer.websites.beamor.controllers
 
                 string data = JsonConvert.SerializeObject(response);
 
+                API.SendData(socket, Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text);
+            }
+
+            if (request.Message.Contains("get_chunk"))
+            {
+                string[] args = request.Message.Split('|');
+
+                Response response = new Response();
+                response.Message = "get_chunk";
+                response.Data = JsonConvert.SerializeObject(API.main_map.ChunkDictionnary[new Location(Convert.ToInt32(args[1]), Convert.ToInt32(args[2]))]);
+                
+                string data = JsonConvert.SerializeObject(response);
                 API.SendData(socket, Encoding.UTF8.GetBytes(data), WebSocketMessageType.Text);
             }
 
