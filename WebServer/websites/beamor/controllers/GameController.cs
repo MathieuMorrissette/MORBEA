@@ -37,7 +37,14 @@ namespace WebServer.websites.beamor.controllers
             {
                 Response response = new Response();
                 response.Message = "player_info";
-                response.Data = new Player("Kevin") { Type = PlayerType.Archer };
+
+                Player testPlayer = new Player("Kevin");
+                testPlayer.Type = PlayerType.Archer;
+
+                testPlayer.PositionInfo.PosX = 2560;
+                testPlayer.PositionInfo.PosY = 2560;
+
+                response.Data = testPlayer;
 
                 string data = JsonConvert.SerializeObject(response);
 

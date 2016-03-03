@@ -25,6 +25,7 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="classes\model\Character.ts" />
     <TypeScriptCompile Include="classes\model\Chunk.ts" />
+    <TypeScriptCompile Include="classes\model\ChunkLocation.ts" />
     <TypeScriptCompile Include="Enums.ts" />
     <TypeScriptCompile Include="Helpers.ts" />
     <TypeScriptCompile Include="interfaces\ICharacter.ts" />

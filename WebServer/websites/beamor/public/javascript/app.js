@@ -5,14 +5,20 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var TILE_SIZE = 32;
 var CHUNK_SIZE = 16; // Number of tiles
+var CHUNK_COUNT = 3;
 var GameClient = (function () {
     function GameClient() {
         this.websocket_url = "ws://localhost:8080/api/websocket";
-        this.Chunks = new Array(5); // Must not be even
+        this.Chunks = new Array(CHUNK_COUNT); // Must not be even
+        this.tile_buffer = new Array();
         this.CreateWebSocket();
         this.canvas = document.getElementById("game");
         this.ctx = this.canvas.getContext("2d");
         this.InitialiseCanvas();
+        //Create the 2d array
+        for (var i = 0; i < CHUNK_COUNT; i++) {
+            this.Chunks[i] = new Array(CHUNK_COUNT);
+        }
     }
     GameClient.prototype.CreateWebSocket = function () {
         var _this = this;
@@ -25,13 +31,38 @@ var GameClient = (function () {
     GameClient.prototype.SocketOpened = function (event) {
         this.GetMapInfo();
         this.GetPlayerInfo();
-        this.GetChunks();
     };
     GameClient.prototype.SocketClosed = function (event) {
         console.log("Socket Closed!");
     };
     GameClient.prototype.SocketError = function (event) {
         console.log("Error");
+    };
+    GameClient.prototype.GetChunkPositionInMapFromLocalPosition = function (localChunkPosition) {
+        var playerChunkPosition = this.GetPlayerChunkLocation(this.player_info);
+        var chunkMapLocation = new ChunkLocation();
+        chunkMapLocation.X = (playerChunkPosition.X - Math.floor((CHUNK_COUNT / 2))) + localChunkPosition.X;
+        chunkMapLocation.Y = (playerChunkPosition.Y - Math.floor((CHUNK_COUNT / 2))) + localChunkPosition.Y;
+        return chunkMapLocation;
+    };
+    GameClient.prototype.GetChunkPositionInLocalArray = function (mapChunkPosition) {
+        var playerChunkPosition = this.GetPlayerChunkLocation(this.player_info);
+        var chunkLocalPosition = new ChunkLocation();
+        chunkLocalPosition.X = mapChunkPosition.X - (playerChunkPosition.X - Math.floor((CHUNK_COUNT / 2)));
+        chunkLocalPosition.Y = mapChunkPosition.Y - (playerChunkPosition.Y - Math.floor((CHUNK_COUNT / 2)));
+        if (chunkLocalPosition.X < 0 || chunkLocalPosition.X >= CHUNK_COUNT) {
+            return null;
+        }
+        if (chunkLocalPosition.Y < 0 || chunkLocalPosition.Y >= CHUNK_COUNT) {
+            return null;
+        }
+        return chunkLocalPosition;
+    };
+    GameClient.prototype.GetPlayerChunkLocation = function (player) {
+        var chunkLocation = new ChunkLocation();
+        chunkLocation.X = Math.round(player.PositionInfo.PosX / (CHUNK_SIZE * TILE_SIZE));
+        chunkLocation.Y = Math.round(player.PositionInfo.PosY / (CHUNK_SIZE * TILE_SIZE));
+        return chunkLocation;
     };
     GameClient.prototype.SocketMessageReceived = function (event) {
         var response = JSON.parse(event.data);
@@ -50,7 +81,11 @@ var GameClient = (function () {
         if (response.Message == "get_chunk") {
             var buffer = response.Data;
             var chunk = Chunk.GetChunk(buffer);
-            this.ChunkTest = chunk;
+            var chunkLocationInLocalArray = this.GetChunkPositionInLocalArray(chunk.Location);
+            if (chunkLocationInLocalArray == null) {
+                return;
+            }
+            this.Chunks[chunkLocationInLocalArray.X][chunkLocationInLocalArray.Y] = chunk;
             console.log("Chunk Received from server!");
         }
     };
@@ -60,14 +95,24 @@ var GameClient = (function () {
         position.y = Math.floor(indexOfArray / CHUNK_SIZE);
         return position;
     };
-    GameClient.prototype.DrawTestChunk = function () {
-        for (var i = 0; i < this.ChunkTest.Layers.length; i++) {
-            for (var j = 0; j < this.ChunkTest.Layers[0].length; j++) {
-                if (this.ChunkTest.Layers[i][j] == 0) {
+    GameClient.prototype.DrawChunks = function () {
+        for (var chunkX = 0; chunkX < CHUNK_COUNT; chunkX++) {
+            for (var chunkY = 0; chunkY < CHUNK_COUNT; chunkY++) {
+                var chunk = this.Chunks[chunkX][chunkY];
+                if (chunk == null) {
                     continue;
                 }
-                var position = this.GetPosition(j);
-                this.DrawTile(this.ChunkTest.Layers[i][j], position.x, position.y);
+                //Draw the chunk with it's layers
+                for (var i = 0; i < chunk.Layers.length; i++) {
+                    for (var j = 0; j < chunk.Layers[0].length; j++) {
+                        if (chunk.Layers[i][j] == 0) {
+                            continue;
+                        }
+                        var position = this.GetPosition(j);
+                        this.DrawTile(chunk.Layers[i][j], (chunkX * CHUNK_SIZE) + position.x, (chunkY * CHUNK_SIZE) + position.y);
+                        console.log("Drawing tile at" + ((chunkX * CHUNK_SIZE) + position.x) + "," + ((chunkY * CHUNK_SIZE) + position.y));
+                    }
+                }
             }
         }
     };
@@ -98,10 +143,13 @@ var GameClient = (function () {
         return true;
     };
     GameClient.prototype.GetChunks = function () {
-        for (var i = 0; i < 1; i++) {
-            for (var j = 0; j < 1; j++) {
+        var playerChunkPosition = this.GetPlayerChunkLocation(this.player_info);
+        var X = (playerChunkPosition.X - Math.floor((CHUNK_COUNT / 2)));
+        var Y = (playerChunkPosition.Y - Math.floor((CHUNK_COUNT / 2)));
+        for (var i = 0; i < CHUNK_COUNT; i++) {
+            for (var j = 0; j < CHUNK_COUNT; j++) {
                 var chunk_request = new Request();
-                chunk_request.Message = "get_chunk|" + i + "|" + j;
+                chunk_request.Message = "get_chunk|" + (i + X) + "|" + (j + Y);
                 this.websocket.send(JSON.stringify(chunk_request));
             }
         }
@@ -115,6 +163,7 @@ var GameClient = (function () {
     };
     GameClient.prototype.StartLoop = function () {
         var _this = this;
+        this.GetChunks();
         setInterval(function () { _this.DrawLoop(); }, 16);
     };
     GameClient.prototype.CheckResize = function () {
@@ -126,8 +175,8 @@ var GameClient = (function () {
     };
     GameClient.prototype.DrawLoop = function () {
         this.ClearCanvas();
-        //this.CheckResize();
-        this.DrawTestChunk();
+        this.CheckResize();
+        this.DrawChunks();
         this.DrawPlayer();
     };
     return GameClient;
@@ -136,6 +185,22 @@ var gameclient;
 window.onload = function () {
     gameclient = new GameClient();
 };
+var Request = (function () {
+    function Request() {
+        this.Message = "";
+    }
+    Request.GetRequest = function (request) {
+        var buffer = new Request();
+        buffer.Message = request.Message;
+        return buffer;
+    };
+    return Request;
+}());
+var Response = (function () {
+    function Response() {
+    }
+    return Response;
+}());
 var Character = (function () {
     function Character() {
     }
@@ -152,34 +217,10 @@ var Chunk = (function () {
     };
     return Chunk;
 }());
-var PlayerType;
-(function (PlayerType) {
-    PlayerType[PlayerType["Warrior"] = 0] = "Warrior";
-    PlayerType[PlayerType["Archer"] = 1] = "Archer";
-    PlayerType[PlayerType["Thief"] = 2] = "Thief";
-    PlayerType[PlayerType["Magician"] = 3] = "Magician";
-})(PlayerType || (PlayerType = {}));
-var SerializationHelper = (function () {
-    function SerializationHelper() {
+var ChunkLocation = (function () {
+    function ChunkLocation() {
     }
-    SerializationHelper.toInstance = function (obj, json) {
-        var jsonObj = JSON.parse(json);
-        if (typeof obj["fromJSON"] === "function") {
-            obj["fromJSON"](jsonObj);
-        }
-        else {
-            for (var propName in jsonObj) {
-                obj[propName] = jsonObj[propName];
-            }
-        }
-        return obj;
-    };
-    return SerializationHelper;
-}());
-var IRequest = (function () {
-    function IRequest() {
-    }
-    return IRequest;
+    return ChunkLocation;
 }());
 var MapInfo = (function () {
     function MapInfo() {
@@ -188,6 +229,8 @@ var MapInfo = (function () {
         var buffer = new MapInfo();
         buffer.MapName = mapInfo.MapName;
         buffer.Tilesets = Tileset.GetTilesets(mapInfo.Tilesets);
+        buffer.Width = mapInfo.Width;
+        buffer.Height = mapInfo.Height;
         return buffer;
     };
     return MapInfo;
@@ -222,22 +265,6 @@ var PositionInfo = (function () {
     }
     return PositionInfo;
 }());
-var Request = (function () {
-    function Request() {
-        this.Message = "";
-    }
-    Request.GetRequest = function (request) {
-        var buffer = new Request();
-        buffer.Message = request.Message;
-        return buffer;
-    };
-    return Request;
-}());
-var Response = (function () {
-    function Response() {
-    }
-    return Response;
-}());
 var Tileset = (function () {
     function Tileset() {
     }
@@ -263,5 +290,34 @@ var Tileset = (function () {
         return buffer;
     };
     return Tileset;
+}());
+var PlayerType;
+(function (PlayerType) {
+    PlayerType[PlayerType["Warrior"] = 0] = "Warrior";
+    PlayerType[PlayerType["Archer"] = 1] = "Archer";
+    PlayerType[PlayerType["Thief"] = 2] = "Thief";
+    PlayerType[PlayerType["Magician"] = 3] = "Magician";
+})(PlayerType || (PlayerType = {}));
+var SerializationHelper = (function () {
+    function SerializationHelper() {
+    }
+    SerializationHelper.toInstance = function (obj, json) {
+        var jsonObj = JSON.parse(json);
+        if (typeof obj["fromJSON"] === "function") {
+            obj["fromJSON"](jsonObj);
+        }
+        else {
+            for (var propName in jsonObj) {
+                obj[propName] = jsonObj[propName];
+            }
+        }
+        return obj;
+    };
+    return SerializationHelper;
+}());
+var IRequest = (function () {
+    function IRequest() {
+    }
+    return IRequest;
 }());
 //# sourceMappingURL=app.js.map

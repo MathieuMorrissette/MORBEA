@@ -1,6 +1,6 @@
 ﻿class Chunk implements IChunk
 {
-    public Location: IChunkLocation;
+    public Location: ChunkLocation;
     public Layers: number[][];
 
     public static GetChunk(chunk: IChunk)

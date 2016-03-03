@@ -90,6 +90,8 @@ namespace WebServer.websites.beamor.models.map
 
             mapInfo.MapName = this.MapName;
             mapInfo.Tilesets = this.Tilesets;
+            mapInfo.Width = this.Width;
+            mapInfo.Height = this.Height;
 
             return mapInfo;
         }

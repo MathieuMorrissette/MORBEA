@@ -1,5 +1,6 @@
 ﻿var TILE_SIZE = 32;
 var CHUNK_SIZE = 16; // Number of tiles
+var CHUNK_COUNT = 3;
 
 class GameClient
 {
@@ -10,8 +11,8 @@ class GameClient
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private Chunks: Chunk[][] = new Array<Chunk[]>(5); // Must not be even
-    private ChunkTest: Chunk;
+    private Chunks: Chunk[][] = new Array<Chunk[]>(CHUNK_COUNT); // Must not be even
+    private tile_buffer: HTMLImageElement[] = new Array<HTMLImageElement>();
 
     constructor()
     {
@@ -19,6 +20,12 @@ class GameClient
         this.canvas = document.getElementById("game") as HTMLCanvasElement;
         this.ctx = this.canvas.getContext("2d");
         this.InitialiseCanvas();
+
+        //Create the 2d array
+        for (var i = 0; i < CHUNK_COUNT; i++)
+        {
+            this.Chunks[i] = new Array<Chunk>(CHUNK_COUNT);
+        }
     }
 
     private CreateWebSocket()
@@ -38,7 +45,6 @@ class GameClient
     {
         this.GetMapInfo();
         this.GetPlayerInfo();
-        this.GetChunks();
     }
 
     private SocketClosed(event: CloseEvent)
@@ -50,6 +56,48 @@ class GameClient
     {
         console.log("Error");
     }
+
+    private GetChunkPositionInMapFromLocalPosition(localChunkPosition: ChunkLocation)
+    {
+        var playerChunkPosition = this.GetPlayerChunkLocation(this.player_info);
+        var chunkMapLocation = new ChunkLocation();
+
+        chunkMapLocation.X = (playerChunkPosition.X - Math.floor((CHUNK_COUNT / 2))) + localChunkPosition.X;
+        chunkMapLocation.Y = (playerChunkPosition.Y - Math.floor((CHUNK_COUNT / 2))) + localChunkPosition.Y;
+
+        return chunkMapLocation;
+    }
+
+    private GetChunkPositionInLocalArray(mapChunkPosition: ChunkLocation)
+    {
+        var playerChunkPosition = this.GetPlayerChunkLocation(this.player_info);
+        var chunkLocalPosition = new ChunkLocation();
+
+        chunkLocalPosition.X = mapChunkPosition.X - (playerChunkPosition.X - Math.floor((CHUNK_COUNT / 2)));
+        chunkLocalPosition.Y = mapChunkPosition.Y - (playerChunkPosition.Y - Math.floor((CHUNK_COUNT / 2)));
+
+        if (chunkLocalPosition.X < 0 || chunkLocalPosition.X >= CHUNK_COUNT)
+        {
+            return null;
+        }
+
+        if (chunkLocalPosition.Y < 0 || chunkLocalPosition.Y >= CHUNK_COUNT) {
+            return null;
+        }
+
+        return chunkLocalPosition;
+    }
+    
+    private GetPlayerChunkLocation(player: Player) : ChunkLocation
+    {
+        var chunkLocation = new ChunkLocation();
+        
+        chunkLocation.X = Math.round(player.PositionInfo.PosX / (CHUNK_SIZE * TILE_SIZE));
+        chunkLocation.Y = Math.round(player.PositionInfo.PosY / (CHUNK_SIZE * TILE_SIZE));
+
+        return chunkLocation;
+    }
+
 
     private SocketMessageReceived(event: MessageEvent)
     {
@@ -77,7 +125,15 @@ class GameClient
         {
             var buffer = response.Data as IChunk;
             var chunk = Chunk.GetChunk(buffer);
-            this.ChunkTest = chunk;
+
+            var chunkLocationInLocalArray = this.GetChunkPositionInLocalArray(chunk.Location);
+
+            if (chunkLocationInLocalArray == null)
+            {
+                return;
+            }
+
+            this.Chunks[chunkLocationInLocalArray.X][chunkLocationInLocalArray.Y] = chunk;
 
             console.log("Chunk Received from server!");
         }
@@ -91,15 +147,32 @@ class GameClient
         return position;
     }
 
-    private DrawTestChunk()
+    private DrawChunks()
     {
-        for (var i = 0; i < this.ChunkTest.Layers.length; i++) {
-            for (var j = 0; j < this.ChunkTest.Layers[0].length; j++) {
-                if (this.ChunkTest.Layers[i][j] == 0) {
+        for (var chunkX = 0; chunkX < CHUNK_COUNT; chunkX++)
+        {
+            for (var chunkY = 0; chunkY < CHUNK_COUNT; chunkY++)
+            {
+                var chunk = this.Chunks[chunkX][chunkY];
+
+                if (chunk == null)
+                {
                     continue;
                 }
-                var position = this.GetPosition(j);
-                this.DrawTile(this.ChunkTest.Layers[i][j], position.x, position.y);
+
+                //Draw the chunk with it's layers
+                for (var i = 0; i < chunk.Layers.length; i++)
+                {
+                    for (var j = 0; j < chunk.Layers[0].length; j++)
+                    {
+                        if (chunk.Layers[i][j] == 0) {
+                            continue;
+                        }
+                        var position = this.GetPosition(j);
+                        this.DrawTile(chunk.Layers[i][j], (chunkX * CHUNK_SIZE) + position.x, (chunkY * CHUNK_SIZE) + position.y);
+                        console.log("Drawing tile at" + ((chunkX * CHUNK_SIZE) + position.x) + "," + ((chunkY * CHUNK_SIZE) + position.y));
+                    }
+                }
             }
         }
     }
@@ -145,12 +218,18 @@ class GameClient
 
     private GetChunks()
     {
-        for (var i = 0; i < 1; i++)
+        var playerChunkPosition = this.GetPlayerChunkLocation(this.player_info);
+
+        var X = (playerChunkPosition.X - Math.floor((CHUNK_COUNT / 2)));
+        var Y = (playerChunkPosition.Y - Math.floor((CHUNK_COUNT / 2)));
+
+
+        for (var i = 0; i < CHUNK_COUNT; i++)
         {
-            for (var j = 0; j < 1; j++)
+            for (var j = 0; j < CHUNK_COUNT; j++)
             {
                 var chunk_request = new Request();
-                chunk_request.Message = "get_chunk|" + i + "|" + j;
+                chunk_request.Message = "get_chunk|" + (i + X) + "|" + (j + Y);
 
                 this.websocket.send(JSON.stringify(chunk_request));
             }
@@ -170,6 +249,7 @@ class GameClient
 
     private StartLoop()
     {
+        this.GetChunks();
         setInterval(() => { this.DrawLoop(); }, 16);
     }
 
@@ -187,8 +267,8 @@ class GameClient
     private DrawLoop()
     {
         this.ClearCanvas();
-        //this.CheckResize();
-        this.DrawTestChunk();
+        this.CheckResize();
+        this.DrawChunks();
         this.DrawPlayer();
     }
 }
