@@ -14,11 +14,23 @@ class GameClient
     private Chunks: Chunk[][] = new Array<Chunk[]>(CHUNK_COUNT); // Must not be even
     private tile_buffer: HTMLImageElement[] = new Array<HTMLImageElement>();
 
+    private canvas_buffer: HTMLCanvasElement;
+    private canvas_buffer_context: CanvasRenderingContext2D;
+    private tile_cache: ImageData[] = new Array<ImageData>();
+    private canvas_data: ImageData;
+    private tileset_image: HTMLImageElement;
+
     constructor()
     {
         this.CreateWebSocket();
         this.canvas = document.getElementById("game") as HTMLCanvasElement;
         this.ctx = this.canvas.getContext("2d");
+
+        this.canvas_buffer = document.createElement("canvas");
+        this.canvas_buffer.width = TILE_SIZE;
+        this.canvas_buffer.height = TILE_SIZE;
+        this.canvas_buffer_context = this.canvas_buffer.getContext("2d");
+
         this.InitialiseCanvas();
 
         //Create the 2d array
@@ -44,7 +56,6 @@ class GameClient
     private SocketOpened(event: Event)
     {
         this.GetMapInfo();
-        this.GetPlayerInfo();
     }
 
     private SocketClosed(event: CloseEvent)
@@ -98,6 +109,13 @@ class GameClient
         return chunkLocation;
     }
 
+    private ReceivedMapInfo()
+    {
+        this.map_info.Tilesets[0].GetImage((image) => {
+            this.tileset_image = image;
+            this.GetPlayerInfo();
+        });
+    }
 
     private SocketMessageReceived(event: MessageEvent)
     {
@@ -109,6 +127,7 @@ class GameClient
 
             this.map_info = MapInfo.GetMapInfo(receivedMapInfo);
             console.log("Received the map info! MapName " + this.map_info.MapName);
+            this.ReceivedMapInfo();
         }
 
         if (response.Message == "player_info")
@@ -165,18 +184,23 @@ class GameClient
                 {
                     for (var j = 0; j < chunk.Layers[0].length; j++)
                     {
-                        if (chunk.Layers[i][j] == 0) {
+                        var tile_value = chunk.Layers[i][j];
+
+                        if (tile_value == 0)
+                        {
                             continue;
                         }
+
                         var position = this.GetPosition(j);
-                        this.DrawTile(chunk.Layers[i][j], (chunkX * CHUNK_SIZE) + position.x, (chunkY * CHUNK_SIZE) + position.y);
-                        console.log("Drawing tile at" + ((chunkX * CHUNK_SIZE) + position.x) + "," + ((chunkY * CHUNK_SIZE) + position.y));
+                        this.DrawTile(tile_value, (chunkX * CHUNK_SIZE) + position.x, (chunkY * CHUNK_SIZE) + position.y);
+                        //console.log("Drawing tile at" + ((chunkX * CHUNK_SIZE) + position.x) + "," + ((chunkY * CHUNK_SIZE) + position.y));
                     }
                 }
             }
         }
     }
 
+    //Positions are in tile... not in pixel
     private DrawTile(tile_value: number, posX: number, posY: number)
     {
         var col_count = this.map_info.Tilesets[0].Width / 32;
@@ -186,7 +210,32 @@ class GameClient
         x = (x * TILE_SIZE) - 32;
         y = y * TILE_SIZE;
 
-        this.ctx.drawImage(this.map_info.Tilesets[0].GetImage(), x, y, 32, 32, posX * 32, posY * 32, 32, 32);
+        if (this.tile_cache[tile_value] == null)
+        {
+            this.canvas_buffer_context.drawImage(this.tileset_image, x, y, 32, 32, posX * 32, posY * 32, 32, 32);
+            this.tile_cache[tile_value] = this.canvas_buffer_context.getImageData(0, 0, TILE_SIZE, TILE_SIZE);
+        }
+
+        var tilePixelArray = this.tile_cache[tile_value].data;
+
+        var drawX = 0;
+        var drawY = 0;
+
+        var posXPixel = posX * TILE_SIZE;
+        var posYPixel = posY * TILE_SIZE;
+
+        for (var tilePixelIndex = 0; tilePixelIndex < tilePixelArray.length; tilePixelIndex+=4)
+        {
+            drawX = Math.floor(tilePixelIndex % (TILE_SIZE * 4));
+            drawY = Math.floor(tilePixelIndex/ TILE_SIZE);
+
+            var realIndex = (((posYPixel + drawY) * (this.canvas_data.width * 4)) + (posXPixel + drawX));
+
+            this.canvas_data.data[realIndex] = tilePixelArray[tilePixelIndex];
+            this.canvas_data.data[realIndex + 1] = tilePixelArray[tilePixelIndex + 1];
+            this.canvas_data.data[realIndex + 2] = tilePixelArray[tilePixelIndex + 2];
+            this.canvas_data.data[realIndex + 3] = tilePixelArray[tilePixelIndex + 3];
+        }
     }
 
     private GetPlayerInfo(): Boolean
@@ -244,7 +293,7 @@ class GameClient
     private DrawPlayer()
     {
         var Image = this.player_info.GetPlayerImage();
-        this.ctx.drawImage(Image, (this.canvas.width / 2) - (Image.width / 2), (this.canvas.height / 2) - (Image.height / 2));
+        this.canvas_buffer_context.drawImage(Image, (this.canvas.width / 2) - (Image.width / 2), (this.canvas.height / 2) - (Image.height / 2));
     }
 
     private StartLoop()
@@ -266,10 +315,18 @@ class GameClient
     
     private DrawLoop()
     {
-        this.ClearCanvas();
         this.CheckResize();
+        this.canvas_data = this.ctx.createImageData(this.canvas.width, this.canvas.height);
+        //this.ClearCanvas();
+
         this.DrawChunks();
-        this.DrawPlayer();
+        //this.DrawPlayer();
+
+
+        // Copy image from canvas buffer to the rendered canvas
+        //this.ctx.drawImage(this.canvas_buffer, 0, 0);
+
+        this.ctx.putImageData(this.canvas_data, 0,0);
     }
 }
 

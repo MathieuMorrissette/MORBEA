@@ -18,12 +18,16 @@
         return list;
     }
 
-    public GetImage(): HTMLImageElement
+    public GetImage(callback: (image: HTMLImageElement) => any )
     {
         var image = new Image();
-        image.src = "http://localhost:8080/resources/tiles/" + this.ImageName + ".png";
+        image.onload = () =>
+        {
+            console.log("Image has been loaded successfully!");
+            callback(image);
+        };
 
-        return image;
+        image.src = "http://localhost:8080/resources/tiles/" + this.ImageName + ".png";
     }
 
     public static GetTileset(tileset: ITileset): Tileset

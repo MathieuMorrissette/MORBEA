@@ -11,9 +11,14 @@ var GameClient = (function () {
         this.websocket_url = "ws://localhost:8080/api/websocket";
         this.Chunks = new Array(CHUNK_COUNT); // Must not be even
         this.tile_buffer = new Array();
+        this.tile_cache = new Array();
         this.CreateWebSocket();
         this.canvas = document.getElementById("game");
         this.ctx = this.canvas.getContext("2d");
+        this.canvas_buffer = document.createElement("canvas");
+        this.canvas_buffer.width = TILE_SIZE;
+        this.canvas_buffer.height = TILE_SIZE;
+        this.canvas_buffer_context = this.canvas_buffer.getContext("2d");
         this.InitialiseCanvas();
         //Create the 2d array
         for (var i = 0; i < CHUNK_COUNT; i++) {
@@ -30,7 +35,6 @@ var GameClient = (function () {
     };
     GameClient.prototype.SocketOpened = function (event) {
         this.GetMapInfo();
-        this.GetPlayerInfo();
     };
     GameClient.prototype.SocketClosed = function (event) {
         console.log("Socket Closed!");
@@ -64,12 +68,20 @@ var GameClient = (function () {
         chunkLocation.Y = Math.round(player.PositionInfo.PosY / (CHUNK_SIZE * TILE_SIZE));
         return chunkLocation;
     };
+    GameClient.prototype.ReceivedMapInfo = function () {
+        var _this = this;
+        this.map_info.Tilesets[0].GetImage(function (image) {
+            _this.tileset_image = image;
+            _this.GetPlayerInfo();
+        });
+    };
     GameClient.prototype.SocketMessageReceived = function (event) {
         var response = JSON.parse(event.data);
         if (response.Message == "map_info") {
             var receivedMapInfo = response.Data;
             this.map_info = MapInfo.GetMapInfo(receivedMapInfo);
             console.log("Received the map info! MapName " + this.map_info.MapName);
+            this.ReceivedMapInfo();
         }
         if (response.Message == "player_info") {
             var object = response.Data;
@@ -105,24 +117,42 @@ var GameClient = (function () {
                 //Draw the chunk with it's layers
                 for (var i = 0; i < chunk.Layers.length; i++) {
                     for (var j = 0; j < chunk.Layers[0].length; j++) {
-                        if (chunk.Layers[i][j] == 0) {
+                        var tile_value = chunk.Layers[i][j];
+                        if (tile_value == 0) {
                             continue;
                         }
                         var position = this.GetPosition(j);
-                        this.DrawTile(chunk.Layers[i][j], (chunkX * CHUNK_SIZE) + position.x, (chunkY * CHUNK_SIZE) + position.y);
-                        console.log("Drawing tile at" + ((chunkX * CHUNK_SIZE) + position.x) + "," + ((chunkY * CHUNK_SIZE) + position.y));
+                        this.DrawTile(tile_value, (chunkX * CHUNK_SIZE) + position.x, (chunkY * CHUNK_SIZE) + position.y);
                     }
                 }
             }
         }
     };
+    //Positions are in tile... not in pixel
     GameClient.prototype.DrawTile = function (tile_value, posX, posY) {
         var col_count = this.map_info.Tilesets[0].Width / 32;
         var x = tile_value % col_count;
         var y = Math.floor(tile_value / col_count);
         x = (x * TILE_SIZE) - 32;
         y = y * TILE_SIZE;
-        this.ctx.drawImage(this.map_info.Tilesets[0].GetImage(), x, y, 32, 32, posX * 32, posY * 32, 32, 32);
+        if (this.tile_cache[tile_value] == null) {
+            this.canvas_buffer_context.drawImage(this.tileset_image, x, y, 32, 32, posX * 32, posY * 32, 32, 32);
+            this.tile_cache[tile_value] = this.canvas_buffer_context.getImageData(0, 0, TILE_SIZE, TILE_SIZE);
+        }
+        var tilePixelArray = this.tile_cache[tile_value].data;
+        var drawX = 0;
+        var drawY = 0;
+        var posXPixel = posX * TILE_SIZE;
+        var posYPixel = posY * TILE_SIZE;
+        for (var tilePixelIndex = 0; tilePixelIndex < tilePixelArray.length; tilePixelIndex += 4) {
+            drawX = Math.floor(tilePixelIndex % (TILE_SIZE * 4));
+            drawY = Math.floor(tilePixelIndex / TILE_SIZE);
+            var realIndex = (((posYPixel + drawY) * (this.canvas_data.width * 4)) + (posXPixel + drawX));
+            this.canvas_data.data[realIndex] = tilePixelArray[tilePixelIndex];
+            this.canvas_data.data[realIndex + 1] = tilePixelArray[tilePixelIndex + 1];
+            this.canvas_data.data[realIndex + 2] = tilePixelArray[tilePixelIndex + 2];
+            this.canvas_data.data[realIndex + 3] = tilePixelArray[tilePixelIndex + 3];
+        }
     };
     GameClient.prototype.GetPlayerInfo = function () {
         if (!(this.websocket.readyState == 1)) {
@@ -159,7 +189,7 @@ var GameClient = (function () {
     };
     GameClient.prototype.DrawPlayer = function () {
         var Image = this.player_info.GetPlayerImage();
-        this.ctx.drawImage(Image, (this.canvas.width / 2) - (Image.width / 2), (this.canvas.height / 2) - (Image.height / 2));
+        this.canvas_buffer_context.drawImage(Image, (this.canvas.width / 2) - (Image.width / 2), (this.canvas.height / 2) - (Image.height / 2));
     };
     GameClient.prototype.StartLoop = function () {
         var _this = this;
@@ -174,10 +204,14 @@ var GameClient = (function () {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     };
     GameClient.prototype.DrawLoop = function () {
-        this.ClearCanvas();
         this.CheckResize();
+        this.canvas_data = this.ctx.createImageData(this.canvas.width, this.canvas.height);
+        //this.ClearCanvas();
         this.DrawChunks();
-        this.DrawPlayer();
+        //this.DrawPlayer();
+        // Copy image from canvas buffer to the rendered canvas
+        //this.ctx.drawImage(this.canvas_buffer, 0, 0);
+        this.ctx.putImageData(this.canvas_data, 0, 0);
     };
     return GameClient;
 }());
@@ -277,10 +311,13 @@ var Tileset = (function () {
         }
         return list;
     };
-    Tileset.prototype.GetImage = function () {
+    Tileset.prototype.GetImage = function (callback) {
         var image = new Image();
+        image.onload = function () {
+            console.log("Image has been loaded successfully!");
+            callback(image);
+        };
         image.src = "http://localhost:8080/resources/tiles/" + this.ImageName + ".png";
-        return image;
     };
     Tileset.GetTileset = function (tileset) {
         var buffer = new Tileset();

@@ -1,0 +1,2 @@
+[] don't draw tiles if they are outside of the screen.
+[] keep a cache of the tiles image.
